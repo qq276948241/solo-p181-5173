@@ -2,19 +2,18 @@
 import { computed } from 'vue'
 import { RotateCcw, GraduationCap, Banknote, ArrowUpDown, ArrowDownAZ, ArrowUpAZ, Clock } from 'lucide-vue-next'
 import { useBookStore } from '@/stores/book'
-
-export type SortKey = 'newest' | 'price-asc' | 'price-desc'
+import { type SortKey } from '@/composables/useBookSort'
 
 interface Props {
-  sort?: SortKey
+  activeSort?: SortKey
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  sort: 'newest',
+  activeSort: 'newest',
 })
 
 const emit = defineEmits<{
-  (e: 'update:sort', value: SortKey): void
+  (e: 'sort-change', value: SortKey): void
 }>()
 
 const bookStore = useBookStore()
@@ -45,8 +44,8 @@ function onMaxPriceChange(e: Event) {
   bookStore.setPriceRange([priceRange.value[0], maxVal])
 }
 
-function setSort(key: SortKey) {
-  emit('update:sort', key)
+function handleSortClick(key: SortKey) {
+  emit('sort-change', key)
 }
 
 function clearAll() {
@@ -138,10 +137,10 @@ function clearAll() {
         <button
           v-for="opt in sortOptions"
           :key="opt.key"
-          @click="setSort(opt.key)"
+          @click="handleSortClick(opt.key)"
           :class="[
             'flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-medium transition-all duration-200',
-            props.sort === opt.key
+            props.activeSort === opt.key
               ? 'bg-forest-500 text-cream-50 shadow-sm'
               : 'bg-cream-50 text-forest-400 hover:bg-cream-100 hover:text-forest-500',
           ]"
