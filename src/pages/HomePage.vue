@@ -13,6 +13,11 @@ const showLoginModal = ref(false)
 const filteredBooks = computed(() => bookStore.filteredBooks)
 const { sortKey, setSort, sortedBooks } = useBookSort(() => filteredBooks.value)
 
+const listKey = computed(() => {
+  const ids = sortedBooks.value.map((b) => b.id).join(',')
+  return `${sortKey.value}__${ids}`
+})
+
 function onRequireLogin() {
   showLoginModal.value = true
 }
@@ -41,14 +46,19 @@ function onRequireLogin() {
       </div>
 
       <div class="flex-1 min-w-0">
-        <TransitionGroup name="fade-list" tag="div" class="masonry columns-1 sm:columns-2 xl:columns-3 2xl:columns-4">
-          <BookCard
-            v-for="book in sortedBooks"
-            :key="book.id"
-            :book="book"
-            @require-login="onRequireLogin"
-          />
-        </TransitionGroup>
+        <Transition name="fade-block" mode="out-in">
+          <div
+            :key="listKey"
+            class="masonry columns-1 sm:columns-2 xl:columns-3 2xl:columns-4"
+          >
+            <BookCard
+              v-for="book in sortedBooks"
+              :key="book.id"
+              :book="book"
+              @require-login="onRequireLogin"
+            />
+          </div>
+        </Transition>
 
         <div
           v-if="sortedBooks.length === 0"

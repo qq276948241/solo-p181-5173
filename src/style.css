@@ -55,6 +55,21 @@ body {
   opacity: 0;
 }
 
+.fade-block-enter-active,
+.fade-block-leave-active {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.fade-block-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.fade-block-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.25s ease;
