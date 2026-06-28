@@ -1,13 +1,33 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RotateCcw, GraduationCap, Banknote } from 'lucide-vue-next'
+import { RotateCcw, GraduationCap, Banknote, ArrowUpDown, ArrowDownAZ, ArrowUpAZ, Clock } from 'lucide-vue-next'
 import { useBookStore } from '@/stores/book'
+
+export type SortKey = 'newest' | 'price-asc' | 'price-desc'
+
+interface Props {
+  sort?: SortKey
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  sort: 'newest',
+})
+
+const emit = defineEmits<{
+  (e: 'update:sort', value: SortKey): void
+}>()
 
 const bookStore = useBookStore()
 
 const selectedColleges = computed(() => bookStore.selectedColleges)
 const priceRange = computed(() => bookStore.priceRange)
 const maxPrice = computed(() => bookStore.maxPrice)
+
+const sortOptions: { key: SortKey; label: string; icon: typeof Clock }[] = [
+  { key: 'price-asc', label: '价格↑', icon: ArrowUpAZ },
+  { key: 'price-desc', label: '价格↓', icon: ArrowDownAZ },
+  { key: 'newest', label: '最新', icon: Clock },
+]
 
 function toggleCollege(college: string) {
   bookStore.toggleCollege(college)
@@ -23,6 +43,10 @@ function onMaxPriceChange(e: Event) {
   const target = e.target as HTMLInputElement
   const maxVal = Math.max(Number(target.value), priceRange.value[0])
   bookStore.setPriceRange([priceRange.value[0], maxVal])
+}
+
+function setSort(key: SortKey) {
+  emit('update:sort', key)
 }
 
 function clearAll() {
@@ -102,6 +126,29 @@ function clearAll() {
             />
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-5 border-t border-cream-100">
+      <div class="flex items-center gap-2 mb-3">
+        <ArrowUpDown :size="16" class="text-forest-500" />
+        <h3 class="text-sm font-semibold text-forest-500">排序</h3>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <button
+          v-for="opt in sortOptions"
+          :key="opt.key"
+          @click="setSort(opt.key)"
+          :class="[
+            'flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-medium transition-all duration-200',
+            props.sort === opt.key
+              ? 'bg-forest-500 text-cream-50 shadow-sm'
+              : 'bg-cream-50 text-forest-400 hover:bg-cream-100 hover:text-forest-500',
+          ]"
+        >
+          <component :is="opt.icon" :size="16" />
+          {{ opt.label }}
+        </button>
       </div>
     </div>
   </aside>
